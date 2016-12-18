@@ -40,7 +40,7 @@ function onError(){
 };
 
 function pingSelf(){
-  http.get("https://dontgotoschool.herokuapp.com/", function(res) {
+  http.get("http://dontgotoschool.herokuapp.com/", function(res) {
     res.on('data', function(chunk){
 
     });
