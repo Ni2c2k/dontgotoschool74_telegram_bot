@@ -14,31 +14,51 @@ function notificate(){
       bot.sendMessage( subsIds[ i ], spasMessages[0] );
   }
 }
+
 function onRetrieveInterval(messages){
     console.log(messages);
-    //oldMsg = '';
-    //if( spasMessages.length > 0 ){
-    //  oldMsg = spasMessages[ 0 ];
-    //}
+    oldMsg = '';
+    if( spasMessages.length > 0 ){
+      oldMsg = spasMessages[ 0 ];
+    }
     spasMessages = messages;
 
-    //if( spasMessages.length > 0 ){
-    //  if( oldMsg === spasMessages[0]){
-
-    //  } else {
+    if( spasMessages.length > 0 ){
+      if( oldMsg === spasMessages[0]){
+        console.log('message did not changed: ' + spasMessages[0]);
+      } else {
+        console.log('notificate');
         notificate();
-    //  }
-    //}
+      }
+    } else {
+      console.log('spasMessages.lenght = 0');
+    }
 };
+
 function onError(){
     console.log("error occured");
 };
+
+function pingSelf(){
+  http.get("https://dontgotoschool.herokuapp.com/", function(res) {
+    res.on('data', function(chunk){
+
+    });
+    res.on('end', function() {
+      console.log('ping ok');
+    });
+  }).on('error', function() {
+    console.log('error while ping');
+  });
+};
+
 var interval = setInterval(function(){
     console.log('interval');
 
+    pingSelf();
     spasinfo.retrieveMessages( onRetrieveInterval, onError );
 
-}, 5*60000 );
+}, 60000 );
 
 bot.on('message', function(msg) {
     console.log('onMessage');
@@ -58,13 +78,19 @@ bot.onText(/\/unsubscribe/, function(msg){
 
 bot.onText(/\/subscribe/, function(msg) {
     var chatId = msg.chat.id;
-    subsIds.push(chatId);
-    var infoMsg = '';
-    if(spasMessages.length > 0 ){
-      infoMsg = spasMessages[ 0 ];
+
+    if( subsIds.indexOf(chatId) === -1 ){
+      subsIds.push(chatId);
+      var infoMsg = '';
+      if(spasMessages.length > 0 ){
+        infoMsg = spasMessages[ 0 ];
+      }
+      bot.sendMessage( chatId, "you have been subscribed\n" + infoMsg );
+      console.log('subscribed');
+    } else {
+      bot.sendMessage( chatId, "you're already subscribed");
+      console.log('already subscribed');
     }
-    bot.sendMessage( chatId, "you have been subscribed\n" + infoMsg );
-    console.log('subscribed');
 });
 
 bot.onText(/\/request/, function(msg) {
@@ -97,7 +123,7 @@ spasinfo.retrieveMessages( onRetrieve, onError );
 
 var server = http.createServer( function(request, response) {
   response.writeHead(200, {"Content-Type": "text/plain"});
-  response.end('Dontgotoschool bot: ' + request.url );
+  response.end('Dontgotoschool bot: ' + request.url + '\n subsIds.length = ' + subsIds.length );
 });
 
 server.listen( process.env.PORT || 8000);
