@@ -1,5 +1,6 @@
 var spasinfo = require("./spasinfo.js");
 var TelegramBot = require('node-telegram-bot-api');
+var http = require('http');
 
 var token = '322598858:AAE3srLvFUxusepnmdgeOQhpas-Y_LvqI40';
 
@@ -93,4 +94,10 @@ function onRetrieve(messages){
 };
 
 spasinfo.retrieveMessages( onRetrieve, onError );
-//spasinfo.retrieveMessages( onRetrieve, onError );
+
+var server = http.createServer( function(request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.end('Dontgotoschool bot: ' + request.url );
+});
+
+server.listen( process.env.PORT || 8000);
