@@ -58,7 +58,7 @@ var interval = setInterval(function(){
     pingSelf();
     spasinfo.retrieveMessages( onRetrieveInterval, onError );
 
-}, 60000 );
+}, 10 * 60000 );
 
 bot.on('message', function(msg) {
     console.log('onMessage');
