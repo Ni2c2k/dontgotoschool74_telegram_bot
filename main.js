@@ -9,7 +9,7 @@ var token = '322598858:AAE3srLvFUxusepnmdgeOQhpas-Y_LvqI40';
 var bot = new TelegramBot( token, { polling: true } );
 mongoose.Promise = Promise;
 
-var mongodbUri = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/test';
+var mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
 mongoose.connect( mongodbUri, function( err, res) {
   if(err){
     console.log('error while connecting to mongodb: ' + err);
