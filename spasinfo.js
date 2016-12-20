@@ -12,18 +12,21 @@ var messages = [];
 var parser = new htmlparser.Parser({
     onopentag: function(name, attribs){
         if(name === "p" && attribs.class === "MsoNormal"){
+          //console.log('MsoNormal open');
             sectionOpened = true;
         }
     },
     onclosetag: function(tagname){
         if( tagname === "p" ) {
             if( sectionOpened === true ) {
+              //console.log('close: sectionOpened = true');
                 sectionOpened = false;
             }
         }
     },
     ontext: function(text) {
         if( sectionOpened === true && endFound === false) {
+          //console.log('sectionOpened: text:' + text + '!');
             if( text.indexOf("родители") != -1 ) {
                 endFound = true;
             } else {
@@ -43,7 +46,7 @@ function download(url, callback) {
         });
         res.on('end', function() {
             var buffer = Buffer.concat(data);
-            callback( iconv.convert(buffer).toString());
+            callback( iconv.convert(buffer).toString().replace('&nbsp;', ' ').trim());
         });
     }).on('error', function() {
         callback(null);
