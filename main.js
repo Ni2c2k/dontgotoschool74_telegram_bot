@@ -1,18 +1,54 @@
 var spasinfo = require("./spasinfo.js");
+var mongoose = require('mongoose');
+var Promise = require('bluebird');
 var TelegramBot = require('node-telegram-bot-api');
 var http = require('http');
 
 var token = '322598858:AAE3srLvFUxusepnmdgeOQhpas-Y_LvqI40';
 
 var bot = new TelegramBot( token, { polling: true } );
+mongoose.Promise = Promise;
+
+var mongodbUri = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/test';
+mongoose.connect( mongodbUri, function( err, res) {
+  if(err){
+    console.log('error while connecting to mongodb: ' + err);
+  } else{
+    console.log('connected to mongodb');
+  }
+});
+
+var db = mongoose.connection;
+
+var subscriberSchema = new mongoose.Schema({
+  userId: String,
+  chatId: Number,
+  isSaturday: Boolean,
+  onlyChanges: Boolean
+});
+
+var Subscriber = mongoose.model('Subscriber', subscriberSchema);
+
+db.on('error', function(err) {
+  console.log('error: ', error);
+});
+
+db.on('open', function(){
+  console.log('open');
+});
 
 var spasMessages = [];
-var subsIds = [];
 
 function notificate(){
-  for( var i = 0; i < subsIds.length; ++i ){
-      bot.sendMessage( subsIds[ i ], spasMessages[0] );
-  }
+  Subscriber.find()
+  .then( function( subsribers ) {
+    for( var i = 0; i < subsribers.length; ++i ){
+      bot.sendMessage( subsribers[i].userId, spasMessages[ 0 ]);
+    }
+  })
+  .catch(function(error){
+    console.log('error: ' + error );
+  });
 }
 
 function onRetrieveInterval(messages){
@@ -67,30 +103,51 @@ bot.on('message', function(msg) {
 });
 
 bot.onText(/\/unsubscribe/, function(msg){
+  console.log('on unsubscribe');
   var chatId = msg.chat.id;
-  var index = subsIds.indexOf(chatId);
-  if( index > -1 ) {
-    subsIds.splice(index, 1);
-    bot.sendMessage( chatId, "unsubscribed: OK");
-    console.log('unsubscribed');
-  }
+  Subscriber.find({userId: chatId})
+  .then( function( subscribers ){
+    if( subscribers.length === 1 ) {
+      subscriber = subscribers[0];
+      subscriber.remove()
+      .then(function(){
+        console.log('removed');
+        bot.sendMessage( chatId, "unsubscribed");
+      })
+      .catch(function(error){
+        console.log('error: ' + error );
+      });
+    }
+  })
+  .catch(function(error){
+    console.log('error: ' + error );
+  });
 });
 
 bot.onText(/\/subscribe/, function(msg) {
-    var chatId = msg.chat.id;
+  var chatId = msg.chat.id;
 
-    if( subsIds.indexOf(chatId) === -1 ){
-      subsIds.push(chatId);
-      var infoMsg = '';
-      if(spasMessages.length > 0 ){
-        infoMsg = spasMessages[ 0 ];
-      }
-      bot.sendMessage( chatId, "you have been subscribed\n" + infoMsg );
-      console.log('subscribed');
+  Subscriber.find({userId: chatId})
+  .then( function( subscribers ){
+    if( subscribers.length === 0 ) {
+      var subscriber = new Subscriber({
+        userId: chatId,
+        isSaturday: true,
+        onlyChanges: true
+      });
+      subscriber.save()
+      .then( function(subscriber){
+        console.log('subscribed');
+        bot.sendMessage( subscriber.userId, "subscribed");
+      })
     } else {
-      bot.sendMessage( chatId, "you're already subscribed");
       console.log('already subscribed');
+      bot.sendMessage(subscribers[0].userId, "already subscribed");
     }
+  })
+  .catch(function(error){
+    console.log('error: ' + error );
+  });
 });
 
 bot.onText(/\/request/, function(msg) {
@@ -122,8 +179,17 @@ function onRetrieve(messages){
 spasinfo.retrieveMessages( onRetrieve, onError );
 
 var server = http.createServer( function(request, response) {
-  response.writeHead(200, {"Content-Type": "text/plain"});
-  response.end('Dontgotoschool bot: ' + request.url + '\n subsIds.length = ' + subsIds.length );
+  Subscriber.find()
+  .then(function(subscribers){
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.end('Dontgotoschool bot: ' + request.url + '\n subscribers count = ' + subscribers.length );
+  })
+  .catch(function(error){
+    console.log('error: ' + error );
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    response.end('Dontgotoschool bot: ' + request.url + '\n subscrbers count = ?');
+  })
+
 });
 
 server.listen( process.env.PORT || 8000);
