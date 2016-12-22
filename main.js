@@ -39,11 +39,21 @@ db.on('open', function(){
 
 var spasMessages = [];
 
+function getSpasMessage()
+{
+  var msg = '';
+  for( var i = 0; i < spasMessages.length; ++i){
+    msg += spasMessages[i];
+  }
+  return msg;
+}
+
 function notificate(){
   Subscriber.find()
   .then( function( subsribers ) {
+    var msg = getSpasMessage();
     for( var i = 0; i < subsribers.length; ++i ){
-      bot.sendMessage( subsribers[i].userId, spasMessages[ 0 ]);
+      bot.sendMessage( subsribers[i].userId, msg);
     }
   })
   .catch(function(error){
@@ -55,13 +65,14 @@ function onRetrieveInterval(messages){
     console.log(messages);
     oldMsg = '';
     if( spasMessages.length > 0 ){
-      oldMsg = spasMessages[ 0 ];
+      oldMsg = getSpasMessage();
     }
     spasMessages = messages;
 
     if( spasMessages.length > 0 ){
-      if( oldMsg === spasMessages[0]){
-        console.log('message did not changed: ' + spasMessages[0]);
+      var newMessage = getSpasMessage();
+      if( oldMsg === newMessage){
+        console.log('message did not changed: ' + newMessage);
       } else {
         console.log('notificate');
         notificate();
@@ -154,7 +165,7 @@ bot.onText(/\/request/, function(msg) {
     var chatId = msg.chat.id;
     var response = "";
     if( spasMessages.length > 0 ) {
-        response = spasMessages[ 0 ];
+        response = getSpasMessage();
         var opts = {
            //reply_to_message_id: msg.message_id,
            reply_markup: JSON.stringify({
