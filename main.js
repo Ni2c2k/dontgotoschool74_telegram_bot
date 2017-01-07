@@ -166,6 +166,7 @@ bot.onText(/\/request/, function(msg) {
     var response = "";
     if( spasMessages.length > 0 ) {
         response = getSpasMessage();
+        /*
         var opts = {
            //reply_to_message_id: msg.message_id,
            reply_markup: JSON.stringify({
@@ -175,7 +176,9 @@ bot.onText(/\/request/, function(msg) {
                ['/request']]
            })
         };
-        bot.sendMessage( chatId, response, opts );
+        */
+        //bot.sendMessage( chatId, response, opts );
+        bot.sendMessage( chatId, response );
     } else {
         response = "no information";
         bot.sendMessage( chatId, response );
