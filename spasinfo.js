@@ -40,6 +40,8 @@ var parser = new htmlparser.Parser({
 function download(url, callback) {
     http.get(url, function(res) {
 
+      console.log('download: status code: ' + res.statusCode);
+
         var data = [];
         res.on('data', function(chunk) {
             data.push(chunk);
@@ -48,23 +50,13 @@ function download(url, callback) {
             var buffer = Buffer.concat(data);
             callback( iconv.convert(buffer).toString().replace('&nbsp;', ' ').trim());
         });
-    }).on('error', function() {
+    }).on('error', function(e) {
+      console.log('download: ' + e);
         callback(null);
     });
 }
 
 var url = "http://spas74.ru/school";
-/*
-download(url, function(data) {
-    if (data) {
-        parser.write(data);
-        parser.end();
-        console.log(messages);
-    } else {
-        console.log('error');
-    }
-});
-*/
 
 module.exports = {
     retrieveMessages: function( callback, errCallback ) {
