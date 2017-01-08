@@ -4,7 +4,7 @@ var Promise = require('bluebird');
 var TelegramBot = require('node-telegram-bot-api');
 var http = require('http');
 
-var token = '322598858:AAE3srLvFUxusepnmdgeOQhpas-Y_LvqI40';
+var token = '259831005:AAE9MBIZFo7hs62nHzYAmRHnJ-RgXEVF5vM';
 
 var bot = new TelegramBot( token, { polling: true } );
 mongoose.Promise = Promise;
