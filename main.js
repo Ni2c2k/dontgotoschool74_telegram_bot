@@ -138,7 +138,7 @@ bot.onText(/\/unsubscribe/, function(msg){
 bot.onText(/\/start/, function(msg){
   console.log('on start');
   var chatId = msg.chat.id;
-  bot.setMessage( chatId, "Для подписки на обновления информации об отмене занятий отправьте команду /subscribe" );
+  bot.sendMessage( chatId, "Для подписки на обновления информации об отмене занятий отправьте команду /subscribe" );
 });
 
 bot.onText(/\/subscribe/, function(msg) {
