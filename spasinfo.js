@@ -5,6 +5,7 @@ var Iconv = require('iconv').Iconv;
 
 var iconv = new Iconv('cp1251','utf8');
 var sectionOpened = false;
+var messageStartFound = false;
 var endFound = false;
 
 var messages = [];
@@ -14,6 +15,7 @@ var parser = new htmlparser.Parser({
         if(name === "p" && attribs.class === "MsoNormal"){
           //console.log('MsoNormal open');
             sectionOpened = true;
+            messageStartFound = true;
         }
     },
     onclosetag: function(tagname){
@@ -25,7 +27,7 @@ var parser = new htmlparser.Parser({
         }
     },
     ontext: function(text) {
-        if( sectionOpened === true && endFound === false) {
+        if( /*sectionOpened === true*/ messageStartFound === true && endFound === false) {
           //console.log('sectionOpened: text:' + text + '!');
             if( text.indexOf("родители") != -1 ) {
                 endFound = true;
