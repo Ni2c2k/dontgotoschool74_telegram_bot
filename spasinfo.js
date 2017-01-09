@@ -54,7 +54,7 @@ function download(url, callback) {
         });
     }).on('error', function(e) {
       console.log('download: ' + e);
-        callback(null);
+        callback(null); st
     });
 }
 
@@ -64,6 +64,7 @@ module.exports = {
     retrieveMessages: function( callback, errCallback ) {
         messages = [];
         endFound = false;
+        messageStartFound = false;
         download(url, function(data) {
             if(data) {
                 parser.write(data);
