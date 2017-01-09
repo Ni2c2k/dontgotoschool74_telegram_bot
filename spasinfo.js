@@ -69,7 +69,15 @@ module.exports = {
             if(data) {
                 parser.write(data);
                 parser.end();
-                callback(messages);
+                var outputMsgs = [];
+                for( var i = 0; i < messages.length; ++i){
+                  if( messages[i] === '\r\n\t' || messages[i] === '\r\n\t\t' ) {
+
+                  } else {
+                    outputMsgs.push(messages[i]);
+                  }
+                }
+                callback(outputMsgs);
             } else {
                 errCallback();
             }
