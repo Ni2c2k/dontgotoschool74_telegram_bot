@@ -107,8 +107,6 @@ var interval = setInterval(function(){
 
 bot.on('message', function(msg) {
     console.log('onMessage');
-    //var chatId = msg.chat.id;
-    //bot.sendMessage(chatId, "Received");
 });
 
 bot.onText(/\/unsubscribe/, function(msg){
@@ -170,18 +168,6 @@ bot.onText(/\/request/, function(msg) {
     var response = "";
     if( spasMessages.length > 0 ) {
         response = getSpasMessage();
-        /*
-        var opts = {
-           //reply_to_message_id: msg.message_id,
-           reply_markup: JSON.stringify({
-               keyboard: [
-               ['/subscribe'],
-               ['/unsubscribe'],
-               ['/request']]
-           })
-        };
-        */
-        //bot.sendMessage( chatId, response, opts );
         bot.sendMessage( chatId, response );
     } else {
         response = "no information";
