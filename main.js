@@ -4,9 +4,7 @@ var Promise = require('bluebird');
 var TelegramBot = require('node-telegram-bot-api');
 var http = require('http');
 
-var token = '259831005:AAE9MBIZFo7hs62nHzYAmRHnJ-RgXEVF5vM';
-
-var bot = new TelegramBot( token, { polling: true } );
+var bot = new TelegramBot( process.env.TELEGRAM_BOT_DONTGOTOSCHOOL_TOKEN, { polling: true } );
 mongoose.Promise = Promise;
 
 var mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
