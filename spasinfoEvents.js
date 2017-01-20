@@ -13,31 +13,40 @@ SpasInfoEvents.prototype.getMessage = function() {
   return this.message;
 };
 
+SpasInfoEvents.prototype.onRetrieve = function(msgs) {
+  var msg = '';
+  for( var i = 0; i < msgs.length; ++i){
+    msg += msgs[i];
+  }
+
+  self.emit('retrieved', msg);
+
+  if( this.isFirstRetrieve ) {
+    this.emit('firstretrieve', msg);
+    this.isFirstRetrieve = false;
+    this.message = msg;
+  } else {
+    if( this.message != msg ) {
+      this.message = msg;
+      this.emit('changed', this.message);
+    }
+  }
+};
+
 SpasInfoEvents.prototype.checkForUpdate = function() {
 
   self = this;
 
+  spasinfo.retrieveMessages().then((msgs) => {
+    self.onRetrieve(msgs);
+  }).catch((err) => {
+    self.emit('error', err);
+  });
+
   var interval = setInterval(function(){
       spasinfo.retrieveMessages()
       .then((msgs) => {
-        var msg = '';
-        for( var i = 0; i < msgs.length; ++i){
-          msg += msgs[i];
-        }
-
-        self.emit('retrieved', msg);
-
-        if( self.isFirstRetrieve ) {
-          self.emit('firstretrieve', msg);
-          self.isFirstRetrieve = false;
-          self.message = msg;
-        } else {
-          if( self.message != msg ) {
-            self.message = msg;
-            self.emit('changed', self.message);
-          }
-        }
-
+        self.onRetrieve(msgs);
       })
       .catch((err) => {
         self.emit('error', err);
