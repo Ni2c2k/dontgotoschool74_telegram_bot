@@ -1,11 +1,10 @@
-var spasinfo = require("./spasinfo.js");
+var SpasInfoEvents = require('./spasInfoEvents.js');
 var mongoose = require('mongoose');
-var Promise = require('bluebird');
 var TelegramBot = require('node-telegram-bot-api');
 var http = require('http');
 
 var bot = new TelegramBot( process.env.TELEGRAM_BOT_DONTGOTOSCHOOL_TOKEN, { polling: true } );
-mongoose.Promise = Promise;
+mongoose.Promise = global.Promise;
 
 var mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
 mongoose.connect( mongodbUri, function( err, res) {
@@ -35,21 +34,11 @@ db.on('open', function(){
   console.log('open');
 });
 
-var spasMessages = [];
+var spasInfo = new SpasInfoEvents;
 
-function getSpasMessage()
-{
-  var msg = '';
-  for( var i = 0; i < spasMessages.length; ++i){
-    msg += spasMessages[i];
-  }
-  return msg;
-}
-
-function notificate(){
+function notificate( msg ){
   Subscriber.find()
   .then( function( subsribers ) {
-    var msg = getSpasMessage();
     for( var i = 0; i < subsribers.length; ++i ){
       bot.sendMessage( subsribers[i].userId, msg);
     }
@@ -58,31 +47,6 @@ function notificate(){
     console.log('error: ' + error );
   });
 }
-
-function onRetrieveInterval(messages){
-    console.log(messages);
-    oldMsg = '';
-    if( spasMessages.length > 0 ){
-      oldMsg = getSpasMessage();
-    }
-    spasMessages = messages;
-
-    if( spasMessages.length > 0 ){
-      var newMessage = getSpasMessage();
-      if( oldMsg === newMessage){
-        console.log('message did not changed: ' + newMessage);
-      } else {
-        console.log('notificate');
-        notificate();
-      }
-    } else {
-      console.log('spasMessages.lenght = 0');
-    }
-};
-
-function onError(){
-    console.log("error occured");
-};
 
 function pingSelf(){
   http.get("http://dontgotoschool.herokuapp.com/", function(res) {
@@ -101,7 +65,6 @@ var interval = setInterval(function(){
     console.log('interval');
 
     pingSelf();
-    spasinfo.retrieveMessages( onRetrieveInterval, onError );
 
 }, 10 * 60000 );
 
@@ -166,8 +129,8 @@ bot.onText(/\/subscribe/, function(msg) {
 bot.onText(/\/request/, function(msg) {
     var chatId = msg.chat.id;
     var response = "";
-    if( spasMessages.length > 0 ) {
-        response = getSpasMessage();
+    if( spasInfo.getMessage().length > 0 ) {
+        response = spasInfo.getMessage();
         bot.sendMessage( chatId, response );
     } else {
         response = "no information";
@@ -175,12 +138,22 @@ bot.onText(/\/request/, function(msg) {
     }
 });
 
-function onRetrieve(messages){
-    console.log(messages);
-    spasMessages = messages;
-};
+spasInfo.on('changed', (msg) => {
+  console.log('on changed: ' + msg);
+  notificate( msg );
+});
 
-spasinfo.retrieveMessages( onRetrieve, onError );
+spasInfo.on('error', (err) => {
+  console.log('on error: ' + err );
+});
+
+spasInfo.on('firstretrieve', (msg) => {
+  //console.log('firstretrieve: ' + msg );
+});
+
+spasInfo.on('retrieved', (msg) => {
+  console.log('retrieved: ' + msg);
+});
 
 var server = http.createServer( function(request, response) {
   Subscriber.find()
@@ -197,3 +170,4 @@ var server = http.createServer( function(request, response) {
 });
 
 server.listen( process.env.PORT || 8000);
+spasInfo.checkForUpdate();
