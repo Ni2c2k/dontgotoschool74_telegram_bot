@@ -1,4 +1,4 @@
-var SpasInfoEvents = require('./spasInfoEvents.js');
+var SpasInfoEvents = require('./spasinfoEvents.js');
 var mongoose = require('mongoose');
 var TelegramBot = require('node-telegram-bot-api');
 var http = require('http');
