@@ -64,6 +64,7 @@ bot.onText(/\/login/, (msg) => {
 
   getConsumer( msg.chat.id )
   .then( consumer => {
+    console.log( 'consumer loggedin: ' + consumer.loggedin );
     if( consumer.loggedin === true ) {
       bot.sendMessage( consumer.chatId, "у меня уже есть ваши данные");
       return 0;
