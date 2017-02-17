@@ -171,7 +171,7 @@ function retrievePostOptions( opts ) {
 
       res.on('data', (d) => {
         parserForm.write(d.toString());
-        parser.end();
+        parserForm.end();
         resolve(opts);
       });
     });
