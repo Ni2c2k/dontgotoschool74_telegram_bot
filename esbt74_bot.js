@@ -78,6 +78,26 @@ bot.onText(/\/login/, (msg) => {
   });
 });
 
+bot.onText(/\/delete/, (msg) => {
+  console.log('delete msg');
+  Consumer.find({chatId : msg.chat.id})
+  .then( consumers => {
+    if( consumers.length === 0 ) {
+      return bot.sendMessage( msg.chat.id, "у меня нет ваших данных" );
+    } else {
+      var consumer = consumers[ 0 ];
+      consumer.remove()
+      .then( () => {
+        return bot.sendMessage( msg.chat.id, "я удалил ваши данные");
+      });
+    }
+  })
+  .catch( e => {
+    console.log(e);
+    return 0;
+  });
+});
+
 function getUserInputAsLoginData( consumer, text ) {
   return new Promise((resolve, reject) => {
     var loginData = text.split(' ');
