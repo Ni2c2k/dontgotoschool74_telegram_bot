@@ -51,7 +51,12 @@ function getConsumer( chatid ) {
           password: '',
           state: 0
         });
-        return consumer.save();
+        consumer.save()
+        .then( consumer ) {
+          resolve( consumer );
+        }.catch( e => {
+          reject( e );
+        });
       } else {
         resolve( consumers[0]);
       }
