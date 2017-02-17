@@ -2,6 +2,7 @@ var db = require('./db/db.js');
 var http = require('http');
 var dontsleep = require('./heroku/dontsleep.js')
 var tgBot = require('./spasinfo_bot.js');
+var esbt74Bot = require('./esbt74_bot.js');
 
 var interval = setInterval(function(){
     console.log('interval');
@@ -31,4 +32,5 @@ var server = http.createServer( function(request, response) {
 });
 
 server.listen( process.env.PORT || 8000);
+esbt74Bot.startPolling();
 tgBot.startMonitorSpas74();
