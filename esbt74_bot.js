@@ -52,9 +52,10 @@ function getConsumer( chatid ) {
           state: 0
         });
         consumer.save()
-        .then( consumer ) {
+        .then( consumer => {
           resolve( consumer );
-        }.catch( e => {
+        })
+        .catch( e => {
           reject( e );
         });
       } else {
