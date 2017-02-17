@@ -111,7 +111,7 @@ function getUserInputAsLoginData( consumer, text ) {
     if( loginData.length != 2 ) {
       reject({
         'cons' : consumer,
-        'error' : 'incorrect input: not 2 words'
+        'error' : 'необходимо ввести email и пароль для сайта esbt74.ru. Повторите ввод:'
       });
     }
     var inputData = {
