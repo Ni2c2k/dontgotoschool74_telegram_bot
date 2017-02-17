@@ -32,5 +32,4 @@ var server = http.createServer( function(request, response) {
 });
 
 server.listen( process.env.PORT || 8000);
-esbt74Bot.startPolling();
 tgBot.startMonitorSpas74();

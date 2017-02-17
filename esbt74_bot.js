@@ -4,7 +4,7 @@ var verificator = require('./check_input.js');
 var dateFunction = require('./date_functions.js');
 var Consumer = require('./db/consumer.js');
 
-var bot = new TelegramBot(process.env.TELEGRAM_BOT_ESBT74_TOKEN);
+var bot = new TelegramBot(process.env.TELEGRAM_BOT_ESBT74_TOKEN, { polling: true });
 
 bot.onText(/\/send/, (msg, match) => {
   Consumer.find({chatId: msg.chat.id})
