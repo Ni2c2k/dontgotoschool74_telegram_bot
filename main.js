@@ -3,6 +3,7 @@ var http = require('http');
 var dontsleep = require('./heroku/dontsleep.js')
 var tgBot = require('./spasinfo_bot.js');
 var esbt74Bot = require('./esbt74_bot.js');
+var Subscriber = require('./db/subscriber.js');
 
 var interval = setInterval(function(){
     console.log('interval');
