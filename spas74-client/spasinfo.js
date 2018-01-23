@@ -15,13 +15,13 @@ function parse(data) {
 
     var parser = new htmlparser.Parser({
         onopentag: function(name, attribs){
-            if(name === "p" && attribs.class === "MsoNormal"){
+            if(name === "b"){
               sectionOpened = true;
               messageStartFound = true;
             }
         },
         onclosetag: function(tagname){
-            if( tagname === "p" ) {
+            if( tagname === "b" ) {
                 if( sectionOpened === true ) {
                   sectionOpened = false;
                 }
@@ -29,11 +29,8 @@ function parse(data) {
         },
         ontext: function(text) {
             if( messageStartFound === true && endFound === false) {
-              if( text.indexOf("родители") != -1 ) {
-                  endFound = true;
-              } else {
-                  messages.push(text);
-              }
+                endFound = true;
+                messages.push(text);
             }
         },
         onend: function() {
@@ -69,7 +66,7 @@ function download(url){
       });
       res.on('end', function(){
         var buffer = Buffer.concat(data);
-        resolve( iconv.convert(buffer).toString().replace('&nbsp;',' ').trim());
+        resolve (buffer.toString().replace('&nbsp;', ' ').trim());
       });
     }).on('error', function(e) {
       reject(e);
@@ -78,7 +75,7 @@ function download(url){
 };
 
 function retrieveMessages(){
-  return download('http://spas74.ru/school').then((data) => parse(data));
+  return download('http://edds74.ru/Upload/files/otmena.html').then((data) => parse(data));
 };
 
 module.exports.download = download;
