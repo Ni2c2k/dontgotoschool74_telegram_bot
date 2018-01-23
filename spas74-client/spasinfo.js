@@ -1,9 +1,6 @@
 var http = require("http");
 var htmlparser = require("htmlparser2");
 var Buffer = require('buffer').Buffer;
-var Iconv = require('iconv').Iconv;
-
-var iconv = new Iconv('cp1251','utf8');
 
 function parse(data) {
   return new Promise((resolve, reject) => {
