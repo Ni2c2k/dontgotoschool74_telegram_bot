@@ -27,8 +27,10 @@ SpasInfoEvents.prototype.onRetrieve = function(msgs) {
     this.message = msg;
   } else {
     if( this.message != msg ) {
-      this.message = msg;
-      this.emit('changed', this.message);
+      if (msg.search("В случае") === -1) {  // filter info messages
+        this.message = msg;
+        this.emit('changed', this.message);
+      }
     }
   }
 };
