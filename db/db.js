@@ -3,7 +3,7 @@ mongoose.Promise = global.Promise;
 
 var mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/test';
 
-mongoose.connect( mongodbUri, function(err, res) {
+mongoose.connect(mongodbUri, { useNewUrlParser: true }, function(err, res) {
   if(err){
     console.log('error while connecting to mongodb: ' + err);
   } else{
