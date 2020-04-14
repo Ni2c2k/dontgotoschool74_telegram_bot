@@ -27,7 +27,9 @@ SpasInfoEvents.prototype.onRetrieve = function(msgs) {
     this.message = msg;
   } else {
     if( this.message != msg ) {
-      if (msg.search("В случае") === -1) {  // filter info messages
+      if (msg.search("школ") === -1 && msg.search("учебны")) {
+        // do nothing
+      } else {
         this.message = msg;
         this.emit('changed', this.message);
       }
