@@ -31,4 +31,3 @@ process.on('SIGINT', function() {
 });
 
 require('./subscriber.js');
-require('./consumer.js');
