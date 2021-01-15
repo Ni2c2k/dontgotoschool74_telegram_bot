@@ -1,5 +1,6 @@
 var TelegramBot = require('node-telegram-bot-api');
 var EddsEvents = require('./edds/eddsEvents.js');
+const Subscriber = require('./subscribers');
 
 var bot = new TelegramBot( process.env.TELEGRAM_BOT_DONTGOTOSCHOOL_TOKEN, { polling: true } );
 
@@ -10,24 +11,20 @@ bot.on('message', function(msg) {
 bot.onText(/\/unsubscribe/, function(msg){
   console.log('on unsubscribe');
   var chatId = msg.chat.id;
-  // Subscriber.find({userId: chatId})
-  // .then( function( subscribers ){
-  //   if( subscribers.length === 1 ) {
-  //     subscriber = subscribers[0];
-  //     subscriber.remove()
-  //     .then(function(){
-  //       console.log('removed');
-  //       bot.sendMessage( chatId, "unsubscribed");
-  //     })
-  //     .catch(function(error){
-  //       console.log('error: ' + error );
-  //     });
-  //   }
-  // })
-  // .catch(function(error){
-  //   console.log('error: ' + error );
-  // });
-      });
+
+  Subscriber.delete(chatId)
+    .then(res => {
+      if (res.rowCount == 0) {
+        bot.sendMessage(chatId, "You have no subscription");
+      } else {
+        bot.sendMessage(chatId, "You've been unsubscribed!");
+      }
+    })
+    .catch(e => {
+      console.error(e.stack);
+      bot.sendMessage(chatId, 'some error occured');
+    })
+});
 
 bot.onText(/\/start/, function(msg){
   console.log('on start');
@@ -38,29 +35,24 @@ bot.onText(/\/start/, function(msg){
 bot.onText(/\/subscribe/, function(msg) {
   var chatId = msg.chat.id;
   console.log('chatId ' + msg.chat.id);
-  bot.sendMessage(chatId, "on subscribe " + chatId);
 
-  // Subscriber.find({userId: chatId})
-  // .then( function( subscribers ){
-  //   if( subscribers.length === 0 ) {
-  //     var subscriber = new Subscriber({
-  //       userId: chatId,
-  //       isSaturday: true,
-  //       onlyChanges: true
-  //     });
-  //     subscriber.save()
-  //     .then( function(subscriber){
-  //       console.log('subscribed');
-  //       bot.sendMessage( subscriber.userId, "subscribed");
-  //     })
-  //   } else {
-  //     console.log('already subscribed');
-  //     bot.sendMessage(subscribers[0].userId, "already subscribed");
-  //   }
-  // })
-  // .catch(function(error){
-  //   console.log('error: ' + error );
-  // });
+  Subscriber.find_by_id(chatId)
+    .then(rows => {
+      if (rows.length == 0) {
+        console.log('not found in DB, subscribing...' + chatId);
+        Subscriber.add(chatId)
+          .then(res => {
+            console.log('Subscribed ' + chatId);
+            bot.sendMessage(chatId, 'Done!');
+          })
+      } else {
+        bot.sendMessage(chatId, "You have a subscription already");
+      }
+    })
+    .catch(err => {
+      console.error(e.stack);
+      bot.sendMessage(chatId, 'some error occured');
+    });
 });
 
 bot.onText(/\/request/, function(msg) {
@@ -75,16 +67,18 @@ bot.onText(/\/request/, function(msg) {
     }
 });
 
+bot.on("polling_error", console.log);
+
 function notificate( msg ){
-  // Subscriber.find()
-  // .then( function( subsribers ) {
-  //   for( var i = 0; i < subsribers.length; ++i ){
-  //     bot.sendMessage( subsribers[i].userId, msg);
-  //   }
-  // })
-  // .catch(function(error){
-  //   console.log('error: ' + error );
-  // });
+  Subscriber.find()
+    .then(rows => {
+      for (var i = 0; i < rows.length; ++i) {
+        bot.sendMessage(rows[i].user_id, msg);
+      }
+    })
+    .catch(e => {
+      console.error(e.stack);
+    });
 }
 
 var eddsInfo = new EddsEvents;

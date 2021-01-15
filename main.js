@@ -1,6 +1,7 @@
 var http = require('http');
 var dontsleep = require('./heroku/dontsleep.js')
 var tgBot = require('./spasinfo_bot.js');
+const Subscriber = require('./subscribers');
 
 var interval = setInterval(function(){
     console.log('interval');
@@ -17,20 +18,16 @@ var interval = setInterval(function(){
 
 var server = http.createServer( function(request, response) {
 
-  response.writeHead(200, {"Content-Type": "text/plain"});
-  response.end("Hello\n");
-
-  // Subscriber.find()
-  // .then(function(subscribers){
-  //   response.writeHead(200, {"Content-Type": "text/plain"});
-  //   response.end('Dontgotoschool bot: ' + request.url + '\n subscribers count = ' + subscribers.length );
-  // })
-  // .catch(function(error){
-  //   console.log('error: ' + error );
-  //   response.writeHead(200, {"Content-Type": "text/plain"});
-  //   response.end('Dontgotoschool bot: ' + request.url + '\n subscrbers count = ?');
-  // })
-
+  Subscriber.find()
+    .then(subscribers => {
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.end('Dontgotoschool bot: ' + request.url + '\n subscribers count = ' + subscribers.length );
+    })
+    .catch(e => {
+      console.log('error: ' + error );
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.end('Dontgotoschool bot: ' + request.url + '\n subscribers count = ?');
+    });
 });
 
 server.listen( process.env.PORT || 8000);

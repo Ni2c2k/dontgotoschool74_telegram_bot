@@ -5,7 +5,8 @@
   "main": "main.js",
   "dependencies": {
     "htmlparser2": "^3.10.1",
-    "node-telegram-bot-api": "^0.30.0"
+    "node-telegram-bot-api": "^0.30.0",
+    "pg": "^8.5.1"
   },
   "devDependencies": {},
   "scripts": {
