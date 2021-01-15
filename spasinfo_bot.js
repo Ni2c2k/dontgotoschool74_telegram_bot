@@ -1,6 +1,5 @@
 var TelegramBot = require('node-telegram-bot-api');
-var Subscriber = require('./db/subscriber.js');
-var SpasInfoEvents = require('./spas74-client/spasinfoEvents.js');
+var EddsEvents = require('./edds/eddsEvents.js');
 
 var bot = new TelegramBot( process.env.TELEGRAM_BOT_DONTGOTOSCHOOL_TOKEN, { polling: true } );
 
@@ -11,24 +10,24 @@ bot.on('message', function(msg) {
 bot.onText(/\/unsubscribe/, function(msg){
   console.log('on unsubscribe');
   var chatId = msg.chat.id;
-  Subscriber.find({userId: chatId})
-  .then( function( subscribers ){
-    if( subscribers.length === 1 ) {
-      subscriber = subscribers[0];
-      subscriber.remove()
-      .then(function(){
-        console.log('removed');
-        bot.sendMessage( chatId, "unsubscribed");
-      })
-      .catch(function(error){
-        console.log('error: ' + error );
+  // Subscriber.find({userId: chatId})
+  // .then( function( subscribers ){
+  //   if( subscribers.length === 1 ) {
+  //     subscriber = subscribers[0];
+  //     subscriber.remove()
+  //     .then(function(){
+  //       console.log('removed');
+  //       bot.sendMessage( chatId, "unsubscribed");
+  //     })
+  //     .catch(function(error){
+  //       console.log('error: ' + error );
+  //     });
+  //   }
+  // })
+  // .catch(function(error){
+  //   console.log('error: ' + error );
+  // });
       });
-    }
-  })
-  .catch(function(error){
-    console.log('error: ' + error );
-  });
-});
 
 bot.onText(/\/start/, function(msg){
   console.log('on start');
@@ -38,35 +37,37 @@ bot.onText(/\/start/, function(msg){
 
 bot.onText(/\/subscribe/, function(msg) {
   var chatId = msg.chat.id;
+  console.log('chatId ' + msg.chat.id);
+  bot.sendMessage(chatId, "on subscribe " + chatId);
 
-  Subscriber.find({userId: chatId})
-  .then( function( subscribers ){
-    if( subscribers.length === 0 ) {
-      var subscriber = new Subscriber({
-        userId: chatId,
-        isSaturday: true,
-        onlyChanges: true
-      });
-      subscriber.save()
-      .then( function(subscriber){
-        console.log('subscribed');
-        bot.sendMessage( subscriber.userId, "subscribed");
-      })
-    } else {
-      console.log('already subscribed');
-      bot.sendMessage(subscribers[0].userId, "already subscribed");
-    }
-  })
-  .catch(function(error){
-    console.log('error: ' + error );
-  });
+  // Subscriber.find({userId: chatId})
+  // .then( function( subscribers ){
+  //   if( subscribers.length === 0 ) {
+  //     var subscriber = new Subscriber({
+  //       userId: chatId,
+  //       isSaturday: true,
+  //       onlyChanges: true
+  //     });
+  //     subscriber.save()
+  //     .then( function(subscriber){
+  //       console.log('subscribed');
+  //       bot.sendMessage( subscriber.userId, "subscribed");
+  //     })
+  //   } else {
+  //     console.log('already subscribed');
+  //     bot.sendMessage(subscribers[0].userId, "already subscribed");
+  //   }
+  // })
+  // .catch(function(error){
+  //   console.log('error: ' + error );
+  // });
 });
 
 bot.onText(/\/request/, function(msg) {
     var chatId = msg.chat.id;
     var response = "";
-    if( spasInfo.getMessage().length > 0 ) {
-        response = spasInfo.getMessage();
+    if( eddsInfo.getMessage().length > 0 ) {
+        response = eddsInfo.getMessage();
         bot.sendMessage( chatId, response );
     } else {
         response = "no information";
@@ -75,38 +76,38 @@ bot.onText(/\/request/, function(msg) {
 });
 
 function notificate( msg ){
-  Subscriber.find()
-  .then( function( subsribers ) {
-    for( var i = 0; i < subsribers.length; ++i ){
-      bot.sendMessage( subsribers[i].userId, msg);
-    }
-  })
-  .catch(function(error){
-    console.log('error: ' + error );
-  });
+  // Subscriber.find()
+  // .then( function( subsribers ) {
+  //   for( var i = 0; i < subsribers.length; ++i ){
+  //     bot.sendMessage( subsribers[i].userId, msg);
+  //   }
+  // })
+  // .catch(function(error){
+  //   console.log('error: ' + error );
+  // });
 }
 
-var spasInfo = new SpasInfoEvents;
+var eddsInfo = new EddsEvents;
 
-spasInfo.on('changed', (msg) => {
+eddsInfo.on('changed', (msg) => {
   console.log('on changed: ' + msg);
   notificate( msg );
 });
 
-spasInfo.on('error', (err) => {
+eddsInfo.on('error', (err) => {
   console.log('on error: ' + err );
 });
 
-spasInfo.on('firstretrieve', (msg) => {
+eddsInfo.on('firstretrieve', (msg) => {
   //console.log('firstretrieve: ' + msg );
 });
 
-spasInfo.on('retrieved', (msg) => {
+eddsInfo.on('retrieved', (msg) => {
   console.log('retrieved: ' + msg);
 });
 
 function startMonitorSpas74() {
-  spasInfo.checkForUpdate();
+  eddsInfo.checkForUpdate();
 };
 
 module.exports.bot = bot;
