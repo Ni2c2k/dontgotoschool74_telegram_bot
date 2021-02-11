@@ -1,5 +1,5 @@
-var edds = require("./edds.js");
-fs = require('fs')
+const edds = require('./edds.js')
+let fs = require('fs')
 
 // try {
 //     const data = fs.readFileSync('out.html', 'utf8')
@@ -11,7 +11,7 @@ fs = require('fs')
 // }
 
 edds.retrieveMessages().then((msgs) => {
-    console.log(msgs);
+  console.log(msgs)
 }).catch((err) => {
-    console.log(err);
-});
+  console.log(err)
+})
