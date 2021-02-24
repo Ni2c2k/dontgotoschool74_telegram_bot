@@ -39,7 +39,10 @@ function download (url) {
 };
 
 function retrieveMessages () {
-  return download('https://edds.gov74.ru/').then((data) => parse(data))
+  return download({
+    hostname: 'edds.gov74.ru',
+    rejectUnauthorized: false
+  }).then((data) => parse(data))
 };
 
 module.exports.download = download
